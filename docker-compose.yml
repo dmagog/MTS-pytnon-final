@@ -1,0 +1,47 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    ports:
+      - "55439:5432"
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d fastapi_project_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/14/main/
+    networks: [fastapi_project_shad]
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_USERNAME: postgres_user
+      DB_PASSWORD: postgres_pass
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: fastapi_project_db
+      DB_TEST_NAME: fastapi_project_test_db
+    ports:
+      - "18017:8000"
+    restart: always
+    volumes:
+      - .:/app
+    networks: [fastapi_project_shad]
+
+volumes:
+  postgres_data:
+
+networks:
+  fastapi_project_shad:
+    name: fastapi_project_shad

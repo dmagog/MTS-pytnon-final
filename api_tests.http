@@ -1,0 +1,99 @@
+@baseUrl = http://localhost:18017/api/v1
+@sellerId = 1
+@bookId = 1
+@token = paste_token_here
+
+POST {{baseUrl}}/seller HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_name": "Ivan",
+  "last_name": "Petrov",
+  "e_mail": "ivan@example.com",
+  "password": "secret123"
+}
+
+###
+
+GET {{baseUrl}}/seller HTTP/1.1
+
+###
+
+POST {{baseUrl}}/token HTTP/1.1
+Content-Type: application/json
+
+{
+  "e_mail": "ivan@example.com",
+  "password": "secret123"
+}
+
+###
+
+GET {{baseUrl}}/seller/{{sellerId}} HTTP/1.1
+Authorization: Bearer {{token}}
+
+###
+
+PUT {{baseUrl}}/seller/{{sellerId}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_name": "Petr",
+  "last_name": "Sidorov",
+  "e_mail": "petr@example.com"
+}
+
+###
+
+POST {{baseUrl}}/books/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Clean Architecture",
+  "author": "Robert Martin",
+  "count_pages": 300,
+  "year": 2025,
+  "seller_id": {{sellerId}}
+}
+
+###
+
+GET {{baseUrl}}/books/ HTTP/1.1
+
+###
+
+GET {{baseUrl}}/books/{{bookId}} HTTP/1.1
+
+###
+
+PUT {{baseUrl}}/books/{{bookId}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Clean Code",
+  "author": "Robert Martin",
+  "year": 2025,
+  "pages": 310,
+  "seller_id": {{sellerId}}
+}
+
+###
+
+PATCH {{baseUrl}}/books/{{bookId}} HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Clean Code 2",
+  "pages": 320
+}
+
+###
+
+DELETE {{baseUrl}}/books/{{bookId}} HTTP/1.1
+
+###
+
+DELETE {{baseUrl}}/seller/{{sellerId}} HTTP/1.1
