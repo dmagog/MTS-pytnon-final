@@ -30,15 +30,15 @@ class SellerService:
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_seller_by_email(self, e_mail: str) -> Seller | None:
-        result = await self.session.execute(select(Seller).where(Seller.e_mail == e_mail))
+    async def get_seller_by_email(self, email: str) -> Seller | None:
+        result = await self.session.execute(select(Seller).where(Seller.email == email))
         return result.scalar_one_or_none()
 
     async def add_seller(self, seller: IncomingSeller) -> Seller:
         new_seller = Seller(
             first_name=seller.first_name,
             last_name=seller.last_name,
-            e_mail=seller.e_mail,
+            email=seller.email,
             password=hash_password(seller.password),
         )
         self.session.add(new_seller)
@@ -53,7 +53,7 @@ class SellerService:
 
         seller.first_name = seller_data.first_name
         seller.last_name = seller_data.last_name
-        seller.e_mail = seller_data.e_mail
+        seller.email = seller_data.email
 
         await self.session.flush()
         await self.session.refresh(seller)

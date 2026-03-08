@@ -6,11 +6,11 @@ from src.models.sellers import Seller
 from src.services.sellers import hash_password
 
 
-async def create_authorized_seller(db_session, e_mail="ivan@example.com", password="secret123"):
+async def create_authorized_seller(db_session, email="ivan@example.com", password="secret123"):
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail=e_mail,
+        email=email,
         password=hash_password(password),
     )
     db_session.add(seller)
@@ -18,10 +18,10 @@ async def create_authorized_seller(db_session, e_mail="ivan@example.com", passwo
     return seller, password
 
 
-async def get_access_token(async_client, e_mail, password):
+async def get_access_token(async_client, email, password):
     response = await async_client.post(
         "/api/v1/token",
-        json={"e_mail": e_mail, "password": password},
+        json={"email": email, "password": password},
     )
     assert response.status_code == status.HTTP_200_OK
     return response.json()["access_token"]
@@ -33,7 +33,7 @@ async def test_create_token(db_session, async_client):
 
     response = await async_client.post(
         "/api/v1/token",
-        json={"e_mail": seller.e_mail, "password": password},
+        json={"email": seller.email, "password": password},
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -56,7 +56,7 @@ async def test_get_single_seller_with_token(db_session, async_client):
     book = Book(title="Book 1", author="Author 1", year=2024, pages=111, seller_id=seller.id)
     db_session.add(book)
     await db_session.flush()
-    token = await get_access_token(async_client, seller.e_mail, password)
+    token = await get_access_token(async_client, seller.email, password)
 
     response = await async_client.get(
         f"/api/v1/seller/{seller.id}",
@@ -89,7 +89,7 @@ async def test_create_book_requires_token(db_session, async_client):
 @pytest.mark.asyncio()
 async def test_create_book_with_token(db_session, async_client):
     seller, password = await create_authorized_seller(db_session)
-    token = await get_access_token(async_client, seller.e_mail, password)
+    token = await get_access_token(async_client, seller.email, password)
 
     response = await async_client.post(
         "/api/v1/books/",
@@ -113,7 +113,7 @@ async def test_update_book_with_token(db_session, async_client):
     book = Book(title="Book 1", author="Author 1", year=2024, pages=111, seller_id=seller.id)
     db_session.add(book)
     await db_session.flush()
-    token = await get_access_token(async_client, seller.e_mail, password)
+    token = await get_access_token(async_client, seller.email, password)
 
     response = await async_client.put(
         f"/api/v1/books/{book.id}",

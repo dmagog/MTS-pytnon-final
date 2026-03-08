@@ -17,7 +17,7 @@ __all__ = ["create_access_token", "get_current_seller"]
 def create_access_token(seller: Seller) -> str:
     payload = {
         "sub": str(seller.id),
-        "e_mail": seller.e_mail,
+        "email": seller.email,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expiration_minutes),
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)

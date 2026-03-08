@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import AliasChoices, BaseModel, EmailStr, Field
 
 __all__ = ["IncomingTokenRequest", "ReturnedToken"]
 
 
 class IncomingTokenRequest(BaseModel):
-    e_mail: EmailStr
+    email: EmailStr = Field(validation_alias=AliasChoices("email", "e_mail"))
     password: str
 
 

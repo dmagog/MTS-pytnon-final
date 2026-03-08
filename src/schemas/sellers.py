@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import AliasChoices, BaseModel, ConfigDict, EmailStr, Field
 
 from .books import ReturnedBook
 
@@ -14,7 +14,7 @@ __all__ = [
 class SellerBase(BaseModel):
     first_name: str
     last_name: str
-    e_mail: EmailStr
+    email: EmailStr = Field(validation_alias=AliasChoices("email", "e_mail"))
 
 
 class IncomingSeller(SellerBase):

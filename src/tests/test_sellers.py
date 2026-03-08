@@ -9,10 +9,10 @@ from src.services.sellers import hash_password, verify_password
 API_V1_URL_PREFIX = "/api/v1/seller"
 
 
-async def get_auth_headers(async_client, e_mail, password):
+async def get_auth_headers(async_client, email, password):
     response = await async_client.post(
         "/api/v1/token",
-        json={"e_mail": e_mail, "password": password},
+        json={"email": email, "password": password},
     )
     assert response.status_code == status.HTTP_200_OK
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
@@ -23,7 +23,7 @@ async def test_create_seller(async_client):
     data = {
         "first_name": "Ivan",
         "last_name": "Petrov",
-        "e_mail": "ivan@example.com",
+        "email": "ivan@example.com",
         "password": "secret123",
     }
 
@@ -34,13 +34,13 @@ async def test_create_seller(async_client):
         "id": 1,
         "first_name": "Ivan",
         "last_name": "Petrov",
-        "e_mail": "ivan@example.com",
+        "email": "ivan@example.com",
     }
 
 
 @pytest.mark.asyncio()
 async def test_get_sellers_list_without_password(db_session, async_client):
-    seller = Seller(first_name="Ivan", last_name="Petrov", e_mail="ivan@example.com", password="secret")
+    seller = Seller(first_name="Ivan", last_name="Petrov", email="ivan@example.com", password="secret")
     db_session.add(seller)
     await db_session.flush()
 
@@ -53,7 +53,7 @@ async def test_get_sellers_list_without_password(db_session, async_client):
                 "id": seller.id,
                 "first_name": "Ivan",
                 "last_name": "Petrov",
-                "e_mail": "ivan@example.com",
+                "email": "ivan@example.com",
             }
         ]
     }
@@ -65,7 +65,7 @@ async def test_get_single_seller_with_books_without_password(db_session, async_c
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail="ivan@example.com",
+        email="ivan@example.com",
         password=hash_password("secret123"),
     )
     db_session.add(seller)
@@ -77,7 +77,7 @@ async def test_get_single_seller_with_books_without_password(db_session, async_c
     await db_session.flush()
     token_response = await async_client.post(
         "/api/v1/token",
-        json={"e_mail": seller.e_mail, "password": "secret123"},
+        json={"email": seller.email, "password": "secret123"},
     )
     token = token_response.json()["access_token"]
 
@@ -91,7 +91,7 @@ async def test_get_single_seller_with_books_without_password(db_session, async_c
         "id": seller.id,
         "first_name": "Ivan",
         "last_name": "Petrov",
-        "e_mail": "ivan@example.com",
+        "email": "ivan@example.com",
         "books": [
             {
                 "id": book.id,
@@ -119,19 +119,19 @@ async def test_update_seller(db_session, async_client):
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail="ivan@example.com",
+        email="ivan@example.com",
         password=hash_password("secret123"),
     )
     db_session.add(seller)
     await db_session.flush()
-    headers = await get_auth_headers(async_client, seller.e_mail, "secret123")
+    headers = await get_auth_headers(async_client, seller.email, "secret123")
 
     response = await async_client.put(
         f"{API_V1_URL_PREFIX}/{seller.id}",
         json={
             "first_name": "Petr",
             "last_name": "Sidorov",
-            "e_mail": "petr@example.com",
+            "email": "petr@example.com",
         },
         headers=headers,
     )
@@ -140,7 +140,7 @@ async def test_update_seller(db_session, async_client):
     await db_session.refresh(seller)
     assert seller.first_name == "Petr"
     assert seller.last_name == "Sidorov"
-    assert seller.e_mail == "petr@example.com"
+    assert seller.email == "petr@example.com"
     assert verify_password("secret123", seller.password)
 
 
@@ -149,12 +149,12 @@ async def test_delete_seller_deletes_books(db_session, async_client):
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail="ivan@example.com",
+        email="ivan@example.com",
         password=hash_password("secret123"),
     )
     db_session.add(seller)
     await db_session.flush()
-    headers = await get_auth_headers(async_client, seller.e_mail, "secret123")
+    headers = await get_auth_headers(async_client, seller.email, "secret123")
 
     book = Book(title="Book 1", author="Author 1", year=2024, pages=123, seller_id=seller.id)
     db_session.add(book)
@@ -176,13 +176,13 @@ async def test_get_single_seller_with_other_seller_token(db_session, async_clien
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail="ivan@example.com",
+        email="ivan@example.com",
         password=hash_password("secret123"),
     )
     seller_2 = Seller(
         first_name="Petr",
         last_name="Sidorov",
-        e_mail="petr@example.com",
+        email="petr@example.com",
         password=hash_password("secret456"),
     )
     db_session.add_all([seller, seller_2])
@@ -190,7 +190,7 @@ async def test_get_single_seller_with_other_seller_token(db_session, async_clien
 
     token_response = await async_client.post(
         "/api/v1/token",
-        json={"e_mail": seller.e_mail, "password": "secret123"},
+        json={"email": seller.email, "password": "secret123"},
     )
     token = token_response.json()["access_token"]
 
@@ -207,25 +207,25 @@ async def test_update_seller_with_other_seller_token(db_session, async_client):
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail="ivan@example.com",
+        email="ivan@example.com",
         password=hash_password("secret123"),
     )
     seller_2 = Seller(
         first_name="Petr",
         last_name="Sidorov",
-        e_mail="petr@example.com",
+        email="petr@example.com",
         password=hash_password("secret456"),
     )
     db_session.add_all([seller, seller_2])
     await db_session.flush()
 
-    headers = await get_auth_headers(async_client, seller.e_mail, "secret123")
+    headers = await get_auth_headers(async_client, seller.email, "secret123")
     response = await async_client.put(
         f"{API_V1_URL_PREFIX}/{seller_2.id}",
         json={
             "first_name": "Stepan",
             "last_name": "Stepanov",
-            "e_mail": "stepan@example.com",
+            "email": "stepan@example.com",
         },
         headers=headers,
     )
@@ -238,19 +238,19 @@ async def test_delete_seller_with_other_seller_token(db_session, async_client):
     seller = Seller(
         first_name="Ivan",
         last_name="Petrov",
-        e_mail="ivan@example.com",
+        email="ivan@example.com",
         password=hash_password("secret123"),
     )
     seller_2 = Seller(
         first_name="Petr",
         last_name="Sidorov",
-        e_mail="petr@example.com",
+        email="petr@example.com",
         password=hash_password("secret456"),
     )
     db_session.add_all([seller, seller_2])
     await db_session.flush()
 
-    headers = await get_auth_headers(async_client, seller.e_mail, "secret123")
+    headers = await get_auth_headers(async_client, seller.email, "secret123")
     response = await async_client.delete(f"{API_V1_URL_PREFIX}/{seller_2.id}", headers=headers)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN

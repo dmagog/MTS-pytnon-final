@@ -13,13 +13,13 @@ async def create_seller(
     db_session,
     first_name="Ivan",
     last_name="Petrov",
-    e_mail="ivan@example.com",
+    email="ivan@example.com",
     password="secret123",
 ):
     seller = Seller(
         first_name=first_name,
         last_name=last_name,
-        e_mail=e_mail,
+        email=email,
         password=hash_password(password),
     )
     db_session.add(seller)
@@ -30,7 +30,7 @@ async def create_seller(
 async def get_auth_headers(async_client, seller, password="secret123"):
     response = await async_client.post(
         "/api/v1/token",
-        json={"e_mail": seller.e_mail, "password": password},
+        json={"email": seller.email, "password": password},
     )
     assert response.status_code == status.HTTP_200_OK
     token = response.json()["access_token"]

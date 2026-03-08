@@ -23,7 +23,7 @@ CurrentSeller = Annotated[Seller, Depends(get_current_seller)]
 @sellers_router.post("", response_model=ReturnedSeller, status_code=status.HTTP_201_CREATED)
 async def create_seller(seller: IncomingSeller, session: DBSession):
     service = SellerService(session)
-    existing_seller = await service.get_seller_by_email(seller.e_mail)
+    existing_seller = await service.get_seller_by_email(seller.email)
     if existing_seller is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Seller with this email already exists")
 
@@ -54,7 +54,7 @@ async def update_seller(seller_id: int, seller_data: UpdateSeller, session: DBSe
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can edit only your own profile")
 
     service = SellerService(session)
-    existing_seller = await service.get_seller_by_email(seller_data.e_mail)
+    existing_seller = await service.get_seller_by_email(seller_data.email)
     if existing_seller is not None and existing_seller.id != seller_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Seller with this email already exists")
 

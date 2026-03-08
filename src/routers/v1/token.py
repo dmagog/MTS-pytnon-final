@@ -14,7 +14,7 @@ DBSession = Annotated[AsyncSession, Depends(get_async_session)]
 
 @token_router.post("", response_model=ReturnedToken)
 async def create_token(credentials: IncomingTokenRequest, session: DBSession):
-    seller = await SellerService(session).get_seller_by_email(credentials.e_mail)
+    seller = await SellerService(session).get_seller_by_email(credentials.email)
     if seller is None or not verify_password(credentials.password, seller.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
